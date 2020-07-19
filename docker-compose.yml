@@ -3,9 +3,14 @@ version: '3.3'
 services:
  db:
    image: postgres
+   environment:
+     - POSTGRES_DB=postgres
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+
  web:
-   build: .
-   command: python manage.py runserver 0.0.0.0:8000
+   build: ./goods
+   command: bash -c "python ./goods/manage.py makemigrations goods && python ./goods/manage.py migrate && python ./goods/manage.py loaddata ./goods/goods/fixtures/mydata.json && python ./goods/manage.py runserver 0.0.0.0:8000"
    volumes:
      - .:/code
    ports:
