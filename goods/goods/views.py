@@ -22,14 +22,17 @@ class AdvertisementList(APIView):
     def get(self, request):
         ads = Advertisement.objects.all()
         tags = self.request.query_params.get("tags", [])
-        price = self.request.query_params.get("price", None)
+        min_price = self.request.query_params.get("min_price", None)
+        max_price = self.request.query_params.get("max_price", None)
         st_date = self.request.query_params.get("st_date", None)
         end_date = self.request.query_params.get("end_date", None)
         if tags:
             tags = tags.split(",")
             ads = ads.filter(tags__in=tags)
-        if price:
-            ads = ads.filter(price=price)
+        if min_price:
+            ads = ads.filter(price__gte=min_price)
+        if max_price:
+            ads = ads.filter(price__lte=max_price)
         if st_date:
             ads = ads.filter(date__gte=st_date)
         if end_date:
