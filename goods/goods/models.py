@@ -15,7 +15,7 @@ class Advertisement(models.Model):
     description = models.TextField(verbose_name="Описание", blank=True)
     tags = models.ManyToManyField(Tag, blank=True)
     image = models.FileField(
-        verbose_name="Изображение", upload_to="static/", null=True, blank=True
+        verbose_name="Изображение", upload_to="images/", null=True, blank=True
     )
     views = models.PositiveIntegerField(default=0, editable=False)
 
