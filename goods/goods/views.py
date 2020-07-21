@@ -1,6 +1,6 @@
-from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -49,35 +49,19 @@ class AdvertisementList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AdvertisementDetail(APIView):
+class AdvertisementDetail(RetrieveUpdateDestroyAPIView):
     """
     Retrieve, update or delete a ads instance.
     """
 
-    def get_object(self, pk):
-        try:
-            return Advertisement.objects.get(pk=pk)
-        except Advertisement.DoesNotExist:
-            raise Http404
+    queryset = Advertisement.objects.all()
+    serializer_class = AdvertisementSerializer
 
-    def get(self, request, pk):
-        ad = self.get_object(pk)
+    def get(self, request, pk, format=None):
+        ad = get_object_or_404(Advertisement, pk=pk)
         ad.increment_views()
         serializer = AdvertisementSerializer(ad)
         return Response(serializer.data)
-
-    def put(self, request, pk):
-        ad = self.get_object(pk)
-        serializer = AdvertisementSerializer(ad, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        ad = self.get_object(pk)
-        ad.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AdvertisementShort(RetrieveAPIView):
