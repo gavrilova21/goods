@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,14 +13,16 @@ from .serializers import (
 )
 
 
-class AdvertisementList(APIView):
+class AdvertisementList(ListCreateAPIView):
     """
     List all adverts, or create a new ad.
     """
 
     parser_class = (FileUploadParser,)
+    queryset = Advertisement.objects.all()
+    serializer_class = AdvertisementSerializer
 
-    def get(self, request):
+    def get_queryset(self):
         ads = Advertisement.objects.all()
         tags = self.request.query_params.get("tags", [])
         min_price = self.request.query_params.get("min_price", None)
@@ -29,7 +31,7 @@ class AdvertisementList(APIView):
         end_date = self.request.query_params.get("end_date", None)
         if tags:
             tags = tags.split(",")
-            ads = ads.filter(tags__in=tags)
+            ads = ads.filter(tags__in=tags).distinct()
         if min_price:
             ads = ads.filter(price__gte=min_price)
         if max_price:
@@ -38,15 +40,7 @@ class AdvertisementList(APIView):
             ads = ads.filter(date__gte=st_date)
         if end_date:
             ads = ads.filter(date__lte=end_date)
-        serializer = AdvertisementSerializer(ads, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = AdvertisementSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return ads
 
 
 class AdvertisementDetail(RetrieveUpdateDestroyAPIView):
