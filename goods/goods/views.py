@@ -1,5 +1,6 @@
 from django.http import Http404
 from rest_framework import status
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -96,12 +97,10 @@ class AdvertisementShort(APIView):
         return Response(serializer.data)
 
 
-class TagList(APIView):
+class TagList(ListAPIView):
     """
     List all tags
     """
 
-    def get(self, request):
-        tags = Tag.objects.all()
-        serializer = TagSerializer(tags, many=True)
-        return Response(serializer.data)
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer

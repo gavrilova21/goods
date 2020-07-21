@@ -18,4 +18,4 @@ class AdvertisementShortSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ("id", "name")
+        fields = "__all__"
