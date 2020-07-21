@@ -80,21 +80,13 @@ class AdvertisementDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class AdvertisementShort(APIView):
+class AdvertisementShort(RetrieveAPIView):
     """
     Get Short ads info
     """
 
-    def get_object(self, pk):
-        try:
-            return Advertisement.objects.get(pk=pk)
-        except Advertisement.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        ad = self.get_object(pk)
-        serializer = AdvertisementShortSerializer(ad)
-        return Response(serializer.data)
+    queryset = Advertisement.objects.all()
+    serializer_class = AdvertisementShortSerializer
 
 
 class TagList(ListAPIView):
