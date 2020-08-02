@@ -1,0 +1,14 @@
+aiohttp
+aiohttp-swagger
+aiohttp-session
+sqlalchemy
+aio_manager
+uvloop
+alembic==0.7.3
+asyncpgsa
+marshmallow
+webargs
+psycopg2
+pyjwt
+aioredis
+python-dotenv

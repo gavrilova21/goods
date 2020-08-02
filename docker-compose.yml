@@ -1,14 +1,8 @@
 version: '3.3'
 
 services:
- db:
-   image: postgres
-   environment:
-     - POSTGRES_DB=postgres
-     - POSTGRES_USER=postgres
-     - POSTGRES_PASSWORD=postgres
 
- web:
+ goods:
    build: ./goods
    command: bash -c "python ./goods/manage.py makemigrations goods && python ./goods/manage.py migrate && python ./goods/manage.py loaddata ./goods/goods/fixtures/mydata.json && python ./goods/manage.py runserver 0.0.0.0:8000"
    volumes:
@@ -17,3 +11,28 @@ services:
      - "8000:8000"
    depends_on:
      - db
+
+ user_service:
+    build: ./user_service
+    command: bash -c "python manage.py migrate && python manage.py run_server --port 8001 --hostname 0.0.0.0"
+    volumes:
+      - .:/user
+    ports:
+      - "8001:8001"
+    links:
+      - redis:redis
+    depends_on:
+      - db
+      - redis
+ db:
+   image: postgres
+   restart: always
+   environment:
+     - POSTGRES_DB=postgres
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+ redis:
+   image:  redis
+   ports:
+     - "6379:6379"
+   command: redis-server --appendonly yes

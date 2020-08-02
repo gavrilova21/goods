@@ -1,0 +1,16 @@
+# application
+VERSION: 0.0.1
+HOST: 0.0.0.0:8001
+SECRET_KEY: secret
+DB_PASSWORD: postgres
+TEST_ENV: false
+PROD: false
+DEBUG: false
+AUTO_AUTHENTICATION: true
+# database
+DB_HOST: db
+DB_PORT: 5432
+DB_NAME: postgres
+DB_USER: postgres
+ACCESS_LIFETIME: 4
+REFRESH_LIFETIME: 48
