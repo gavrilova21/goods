@@ -25,7 +25,7 @@ def create_app(config=None):
     cpu_count = multiprocessing.cpu_count()
     loop = asyncio.get_event_loop()
     redis_pool = loop.run_until_complete(aioredis.create_pool(("redis", 6379),))
-    storage = RedisStorage(redis_pool, max_age=config["REFRESH_LIFETIME"])
+    storage = RedisStorage(redis_pool, max_age=config["REFRESH_LIFETIME"] * 3600)
     session_middleware = aiohttp_session.session_middleware(storage)
     middlewares.append(session_middleware)
     app = web.Application(loop=loop, middlewares=middlewares)
