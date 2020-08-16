@@ -20,19 +20,10 @@ async def process_message(message: aio_pika.IncomingMessage):
 
 async def listener(loop):
     connection = await aio_pika.connect_robust(
-        "amqp://guest:guest@rabbit/", loop=loop, port=5672,
+        "amqp://guest:guest@rabbit/", loop=loop, port=5672
     )
 
-    queue_name = "messages"
-
-    # Creating channel
+    queue_name = "mail"
     channel = await connection.channel()
-
-    # Maximum message count which will be
-    # processing at the same time.
-    await channel.set_qos(prefetch_count=100)
-
-    # Declaring queue
     queue = await channel.declare_queue(queue_name)
-
     await queue.consume(process_message)

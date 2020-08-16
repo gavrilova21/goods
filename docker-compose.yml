@@ -14,7 +14,6 @@ services:
 
  notification_service:
     build: ./notification-service
-    command: /env/bin/uvicorn src.notification_service.asgi:app --reload --host 0.0.0.0 --port 8005
     volumes:
       - ./notification-service:/src
     ports:
@@ -22,6 +21,8 @@ services:
     depends_on:
       - db
       - rabbit
+    environment:
+      WAIT_HOSTS: db:5432, rabbit:5672
 
  db:
    image: postgres
@@ -36,16 +37,20 @@ services:
      - "6379:6379"
    command: redis-server --appendonly yes
 
+ mail:
+    image: bytemark/smtp
+    restart: always
+    environment:
+      RELAY_HOST: smtp.yandex.ru
+      RELAY_PORT: 587
+      RELAY_USERNAME: username
+      RELAY_PASSWORD: password
+
  rabbit:
-   image: "rabbitmq:3-management"
+   image: rabbitmq:3.6.6-management
    hostname: rabbit
    environment:
-     RABBITMQ_ERLANG_COOKIE: "TESTVOLUME"
-     RABBITMQ_DEFAULT_USER: "guest"
-     RABBITMQ_DEFAULT_PASS: "guest"
+     - RABBITMQ_DEFAULT_USER=guest
+     - RABBITMQ_DEFAULT_PASS=guest
    ports:
-     - "15672:15672"
      - "5672:5672"
-   volumes:
-     - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-     - ./rabbitmq/logs:/var/log/rabbitmq/log

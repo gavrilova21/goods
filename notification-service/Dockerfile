@@ -10,4 +10,6 @@ FROM base
 COPY --from=builder /env /env
 COPY --from=builder /src /src
 WORKDIR /src
-CMD /env/bin/uvicorn src.notification_service.asgi:app --reload --host 0.0.0.0 --port 8005
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
+RUN chmod +x /wait
+CMD /wait alembic upgrade head & /env/bin/uvicorn src.notification_service.asgi:app --reload --host 0.0.0.0 --port 8005

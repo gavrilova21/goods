@@ -19,6 +19,7 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 from notification_service.config import DB_DSN
 from notification_service.main import db, load_modules
+
 load_modules()
 config.set_main_option("sqlalchemy.url", str(DB_DSN))
 target_metadata = db
@@ -67,9 +68,7 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
