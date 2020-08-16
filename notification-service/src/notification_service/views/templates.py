@@ -16,7 +16,7 @@ async def get_template(uid: int):
 
 
 class TemplateModel(BaseModel):
-    name: str
+    text: str
 
 
 @router.post("/templates")
