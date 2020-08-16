@@ -12,18 +12,17 @@ services:
    depends_on:
      - db
 
- user_service:
-    build: ./user_service
-    command: bash -c "python manage.py migrate && python manage.py run_server --port 8001 --hostname 0.0.0.0"
+ notification_service:
+    build: ./notification-service
+    command: /env/bin/uvicorn src.notification_service.asgi:app --reload --host 0.0.0.0 --port 8005
     volumes:
-      - .:/user
+      - ./notification-service:/src
     ports:
-      - "8001:8001"
-    links:
-      - redis:redis
+      - "8005:8005"
     depends_on:
       - db
-      - redis
+      - rabbit
+
  db:
    image: postgres
    restart: always
@@ -36,3 +35,17 @@ services:
    ports:
      - "6379:6379"
    command: redis-server --appendonly yes
+
+ rabbit:
+   image: "rabbitmq:3-management"
+   hostname: rabbit
+   environment:
+     RABBITMQ_ERLANG_COOKIE: "TESTVOLUME"
+     RABBITMQ_DEFAULT_USER: "guest"
+     RABBITMQ_DEFAULT_PASS: "guest"
+   ports:
+     - "15672:15672"
+     - "5672:5672"
+   volumes:
+     - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+     - ./rabbitmq/logs:/var/log/rabbitmq/log

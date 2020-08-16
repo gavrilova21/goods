@@ -1,27 +1,14 @@
-# ---------------- added code here -------------------------#
-import os
-import sys
 from logging.config import fileConfig
-from alembic import context
-from dotenv import load_dotenv
+
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-import user_service.models
+from alembic import context
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
-print(os.path.join(BASE_DIR, ".env"))
-sys.path.append(BASE_DIR)
-# ------------------------------------------------------------#
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-# ---------------- added code here -------------------------#
-# this will overwrite the ini-file sqlalchemy.url path
-# with the path given in the config of the main code
-config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
-# ------------------------------------------------------------#
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
@@ -30,8 +17,16 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-# here target_metadata was equal to None
-target_metadata = user_service.models.Base.metadata
+from notification_service.config import DB_DSN
+from notification_service.main import db, load_modules
+load_modules()
+config.set_main_option("sqlalchemy.url", str(DB_DSN))
+target_metadata = db
+
+# other values from the config, defined by the needs of env.py,
+# can be acquired:
+# my_important_option = config.get_main_option("my_important_option")
+# ... etc.
 
 
 def run_migrations_offline():
@@ -72,7 +67,9 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection, target_metadata=target_metadata
+        )
 
         with context.begin_transaction():
             context.run_migrations()
